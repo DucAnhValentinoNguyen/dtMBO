@@ -1,2 +1,2 @@
 # dtMBO
-Customed acquisition functions aplying decision theory
+Customed acquisition functions applying decision theory
