@@ -13,7 +13,7 @@ obj.fun = makeSingleObjectiveFunction(
 )
 
 # sym um x = 0
-obj.fun = makeAckleyFunction(1) # (0,0,0)
+obj.fun = makeAckleyFunction(2) # (0,0,0)
 # sym um x = 0
 obj.fun = makeGriewankFunction(1) # (0,0,0)
 obj.fun = makeAlpine01Function(1) # (0,0,0)

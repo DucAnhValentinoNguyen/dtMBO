@@ -39,7 +39,7 @@ makeMBOInfillCritMaximinCB = function() {
       #     )
       #   )
       # }
-      # return(res)
+      return(res)
     },
     name = "Min upper confidence bound",
     id = "minucb",
@@ -80,7 +80,7 @@ makeMBOInfillCritMinimaxCB = function() {
       #     )
       #   )
       # }
-      # return(res)
+      return(res)
     },
     name = "Minimax Confidence Bound",
     id = "minimaxCB",
@@ -130,7 +130,7 @@ makeMBOInfillCritHurwicz = function(hurwicz.alpha = 0.5) {
       #     )
       #   )
       # }
-      # return(res)
+      return(res)
     },
     name = "Hurwicz criterion",
     id = "hurwicz",
@@ -181,7 +181,7 @@ makeMBOInfillCritBayesDecision = function(loss.fn = "squared") {
       #                        bayes.risk = res
       #                      ))
       # }
-      # return(res)
+      eturn(res)
     },
     name = "Bayes Decision Criterion",
     id = "bayes_decision",
@@ -215,8 +215,8 @@ makeMBOInfillCritHodgesLehmann = function(hodges.factor = 0.5) {
       
       # Hodges-Lehmann estimator: A robust estimate of central tendency
       # Approximate it as a weighted combination of mean and uncertainty (standard error)
-      # 
-      # TODO: how to deal with finding minimum? take only minus by the part of maximin or 
+      #
+      # TODO: how to deal with finding minimum? take only minus by the part of maximin or
       # take minus of the whole func?
       #
       res = hodges.factor * p$response + (1 - hodges.factor) * (p$response + p$se)
@@ -231,7 +231,7 @@ makeMBOInfillCritHodgesLehmann = function(hodges.factor = 0.5) {
       #     )
       #   )
       # }
-      # return(res)
+      return(res)
     },
     name = "Hodges-Lehmann Criterion",
     id = "hodges_lehmann",

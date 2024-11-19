@@ -4,37 +4,33 @@
 # Funktionen mit stetigem Parameterraum, als auch mit gemischtem Parameterraum
 # ausgewählt. Die Auswirkung der Dimension auf die Methoden ließ sich mit den
 # Funktionen mit stetigem Parameterraum untersuchen.
-# library(mlrMBO)
-# library(batchtools)
-# library(ggplot2)
-# library(data.table)
-# library(dplyr)
-# library(tidyr)
+library(mlrMBO)
+library(batchtools)
+library(ggplot2)
+library(data.table)
+library(tidyr)
+library(dplyr)
 
 reg = makeExperimentRegistry("benchmarkInfill")
-# tmp = makeExperimentRegistry(file.dir = NA, make.default = FALSE)
 
-# Define one problem, two algorithms and add them with some parameters:
-# addProblem(
-#   reg = tmp,
-#   "p1",
-#   fun = function(job, data, n, mean, sd, ...)
-#     rnorm(n, mean = mean, sd = sd)
-# )
+# addProblem(name = "sphere",
+#            data = # smooth, unimodal, sym um x = 0
+#              makeSphereFunction(2))
 
-addProblem(name = "sphere",
-           data = # smooth, unimodal, sym um x = 0
-             makeSphereFunction(2))
+# addProblem(name = "1Dgriewank",
+#            data = makeGriewankFunction(2)) # (0,0,0)) # (0,0,0))
 
-addProblem(name = "griewank",
-           data = makeGriewankFunction(2)) # (0,0,0)) # (0,0,0))
+
+#(5, 5,-1)
+addProblem(name = "2DDeflectedCorrugatedSpring",
+           data = makeDeflectedCorrugatedSpringFunction(2))
 
 # schwefel range too wide, less than rosenbrock though
-addProblem(name = "schwefel",
+addProblem(name = "2DSchwefel",
            data = makeSchwefelFunction(2)) # (420.9687, 420.9687, -418.9829))
 
 # rosenborck range too wide
-addProblem(name = "rosenbrock",
+addProblem(name = "2DRosenbrock",
            data = # sym um x = 0
              # multimodal, continuous, differentiable
              makeRosenbrockFunction(2)) # (0,0,0))
@@ -43,18 +39,8 @@ addProblem(name = "rosenbrock",
 
 
 
-addProblem(name = "4DSphere",
-           data = makeSphereFunction(4))
-
-# addProblem(name = "4DAckley",
-#            data = makeAckleyFunction(4))
-#
-# addProblem(name = "4DGriewank",
-#            data = makeGriewankFunction(4))
-#
-#
-# addProblem(name = "4DAlpine01",
-#            data = makeAlpine01Function(4))
+# addProblem(name = "4DSphere",
+#            data = makeSphereFunction(4))
 
 #(5, 5,-1)
 addProblem(name = "4DDeflectedCorrugatedSpring",
@@ -65,11 +51,6 @@ addProblem(name = "4DDeflectedCorrugatedSpring",
 addProblem(name = "4DSchwefel",
            data = makeSchwefelFunction(4))
 
-# # rosenborck range too wide
-# # (1,1,0)
-# addProblem(name = "4DRosenbrock",
-#  data = makeRosenbrockFunction(4))
-
 # Global optimum objective value of -3.3224 at
 # x1       x2       x3       x4       x5     x6
 # 1 0.20169 0.150011 0.476874 0.275332 0.311652 0.6573
@@ -79,37 +60,17 @@ addProblem(name = "4DHartmann",
 
 
 
+#(5, 5,-1)
+addProblem(name = "6DDeflectedCorrugatedSpring",
+           data = makeDeflectedCorrugatedSpringFunction(6))
 
-
-# addProblem(name = "6DSphereFunction",
-#            data = makeSphereFunction(6))
-#
-#
-# addProblem(name = "6DAckleyunction",
-#            data = makeAckleyFunction(6))
-#
-#
-# addProblem(name = "6DGriewankFunction",
-#            data = makeGriewankFunction(6))
-#
-#
-# addProblem(name = "6DAlpine01Function",
-#            data = makeAlpine01Function(6))
-#
-#
-# addProblem(name = "6DDeflectedCorrugatedSpringFunction",
-#            data = makeDeflectedCorrugatedSpringFunction(6))
-
-
-addProblem(name = "6DSchwefelFunction",
+addProblem(name = "6DSchwefel",
            data = makeSchwefelFunction(6))
 
+addProblem(name = "6DRosenbrock",
+           data = makeRosenbrockFunction(6))
 
-# addProblem(name = "6DRosenbrockFunction",
-#            data = makeRosenbrockFunction(6))
-
-
-addProblem(name = "6DHartmannFunction",
+addProblem(name = "6DHartmann",
            data = makeHartmannFunction(6))
 
 
@@ -120,17 +81,17 @@ mbo_optimization <-
     design = generateDesign(5 * getNumberOfParameters(instance),
                             getParamSet(instance),
                             fun = lhs::maximinLHS)
-    
+
     # Create the surrogate model using kriging with Matern 3/2 covariance
     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
-    
+
     # Set up MBO control with termination after 200 iterations
     ctrl = makeMBOControl()
     ctrl = setMBOControlTermination(ctrl, iters = 200)
-    
+
     # Set the specified infill criterion
     ctrl = setMBOControlInfill(ctrl, crit = infill_crit)
-    
+
     # Run the optimization process
     result = mbo(instance, design = design, control = ctrl)
     run.time = result$final.opt.state$time.used
@@ -219,15 +180,15 @@ addAlgorithm(
 #     design = generateDesign(5 * getNumberOfParameters(instance),
 #                             getParamSet(instance),
 #                             fun = lhs::maximinLHS)
-#
+# 
 #     # Create the surrogate model using kriging
 #     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
-#
+# 
 #     # Set up MBO control with LCB and termination after 200 iterations
 #     ctrl = makeMBOControl()
 #     ctrl = setMBOControlTermination(ctrl, iters = 200)
 #     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
-#
+# 
 #     # Run the optimization process
 #     result = mbo(instance, design = design, control = ctrl)
 #     run.time = result$final.opt.state$time.used
@@ -235,22 +196,22 @@ addAlgorithm(
 #     return(list(best.y, run.time))
 #   }
 # )
-#
+# 
 # addAlgorithm(
 #   name = "maximin",
 #   fun = function(job, data, instance, ...) {
 #     design = generateDesign(5 * getNumberOfParameters(instance),
 #                             getParamSet(instance),
 #                             fun = lhs::maximinLHS)
-#
+# 
 #     # Create the surrogate model using kriging
 #     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
-#
+# 
 #     # Set up MBO control with LCB and termination after 200 iterations
 #     ctrl = makeMBOControl()
 #     ctrl = setMBOControlTermination(ctrl, iters = 200)
 #     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritMaximinCB())
-#
+# 
 #     # Run the optimization process
 #     result = mbo(instance, design = design, control = ctrl)
 #     run.time = result$final.opt.state$time.used
@@ -258,23 +219,23 @@ addAlgorithm(
 #     return(list(best.y, run.time))
 #   }
 # )
-#
-#
+# 
+# 
 # addAlgorithm(
 #   name = "minimax",
 #   fun = function(job, data, instance, ...) {
 #     design = generateDesign(5 * getNumberOfParameters(instance),
 #                             getParamSet(instance),
 #                             fun = lhs::maximinLHS)
-#
+# 
 #     # Create the surrogate model using kriging
 #     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
-#
+# 
 #     # Set up MBO control with LCB and termination after 200 iterations
 #     ctrl = makeMBOControl()
 #     ctrl = setMBOControlTermination(ctrl, iters = 200)
 #     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritMinimaxCB())
-#
+# 
 #     # Run the optimization process
 #     result = mbo(instance, design = design, control = ctrl)
 #     run.time = result$final.opt.state$time.used
@@ -282,33 +243,10 @@ addAlgorithm(
 #     return(list(best.y, run.time))
 #   }
 # )
-#
-#
-# # addAlgorithm(
-# #   name = "hurwicz",
-# #   fun = function(job, data, instance, ...) {
-# #     design = generateDesign(5 * getNumberOfParameters(instance),
-# #                             getParamSet(instance),
-# #                             fun = lhs::maximinLHS)
-# #
-# #     # Create the surrogate model using kriging
-# #     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
-# #
-# #     # Set up MBO control with LCB and termination after 200 iterations
-# #     ctrl = makeMBOControl()
-# #     ctrl = setMBOControlTermination(ctrl, iters = 200)
-# #     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritHurwicz())
-# #
-# #     # Run the optimization process
-# #     result = mbo(instance, design = design, control = ctrl)
-# #     run.time = result$final.opt.state$time.used
-# #     best.y = result$y
-# #     return(list(best.y, run.time))
-# #   }
-# # )
-#
+
+
 # addAlgorithm(
-#   name = "hurwiczalpha0.7",
+#   name = "hurwicz",
 #   fun = function(job, data, instance, ...) {
 #     design = generateDesign(5 * getNumberOfParameters(instance),
 #                             getParamSet(instance),
@@ -320,53 +258,7 @@ addAlgorithm(
 #     # Set up MBO control with LCB and termination after 200 iterations
 #     ctrl = makeMBOControl()
 #     ctrl = setMBOControlTermination(ctrl, iters = 200)
-#     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritHurwicz(0.7))
-#
-#     # Run the optimization process
-#     result = mbo(instance, design = design, control = ctrl)
-#     run.time = result$final.opt.state$time.used
-#     best.y = result$y
-#     return(list(best.y, run.time))
-#   }
-# )
-#
-# # addAlgorithm(
-# #   name = "hodgesLehmann",
-# #   fun = function(job, data, instance, ...) {
-# #     design = generateDesign(5 * getNumberOfParameters(instance),
-# #                             getParamSet(instance),
-# #                             fun = lhs::maximinLHS)
-# #
-# #     # Create the surrogate model using kriging
-# #     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
-# #
-# #     # Set up MBO control with LCB and termination after 200 iterations
-# #     ctrl = makeMBOControl()
-# #     ctrl = setMBOControlTermination(ctrl, iters = 200)
-# #     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritHodgesLehmann())
-# #
-# #     # Run the optimization process
-# #     result = mbo(instance, design = design, control = ctrl)
-# #     run.time = result$final.opt.state$time.used
-# #     best.y = result$y
-# #     return(list(best.y, run.time))
-# #   }
-# # )
-#
-# addAlgorithm(
-#   name = "hodgesLehmannFactor0.7",
-#   fun = function(job, data, instance, ...) {
-#     design = generateDesign(5 * getNumberOfParameters(instance),
-#                             getParamSet(instance),
-#                             fun = lhs::maximinLHS)
-#
-#     # Create the surrogate model using kriging
-#     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
-#
-#     # Set up MBO control with LCB and termination after 200 iterations
-#     ctrl = makeMBOControl()
-#     ctrl = setMBOControlTermination(ctrl, iters = 200)
-#     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritHodgesLehmann(0.7))
+#     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritHurwicz())
 #
 #     # Run the optimization process
 #     result = mbo(instance, design = design, control = ctrl)
@@ -376,6 +268,75 @@ addAlgorithm(
 #   }
 # )
 
+# addAlgorithm(
+#   name = "hurwiczalpha0.7",
+#   fun = function(job, data, instance, ...) {
+#     design = generateDesign(5 * getNumberOfParameters(instance),
+#                             getParamSet(instance),
+#                             fun = lhs::maximinLHS)
+# 
+#     # Create the surrogate model using kriging
+#     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
+# 
+#     # Set up MBO control with LCB and termination after 200 iterations
+#     ctrl = makeMBOControl()
+#     ctrl = setMBOControlTermination(ctrl, iters = 200)
+#     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritHurwicz(0.7))
+# 
+#     # Run the optimization process
+#     result = mbo(instance, design = design, control = ctrl)
+#     run.time = result$final.opt.state$time.used
+#     best.y = result$y
+#     return(list(best.y, run.time))
+#   }
+# )
+
+# addAlgorithm(
+#   name = "hodgesLehmann",
+#   fun = function(job, data, instance, ...) {
+#     design = generateDesign(5 * getNumberOfParameters(instance),
+#                             getParamSet(instance),
+#                             fun = lhs::maximinLHS)
+#
+#     # Create the surrogate model using kriging
+#     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
+#
+#     # Set up MBO control with LCB and termination after 200 iterations
+#     ctrl = makeMBOControl()
+#     ctrl = setMBOControlTermination(ctrl, iters = 200)
+#     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritHodgesLehmann())
+#
+#     # Run the optimization process
+#     result = mbo(instance, design = design, control = ctrl)
+#     run.time = result$final.opt.state$time.used
+#     best.y = result$y
+#     return(list(best.y, run.time))
+#   }
+# )
+
+# addAlgorithm(
+#   name = "hodgesLehmannFactor0.7",
+#   fun = function(job, data, instance, ...) {
+#     design = generateDesign(5 * getNumberOfParameters(instance),
+#                             getParamSet(instance),
+#                             fun = lhs::maximinLHS)
+# 
+#     # Create the surrogate model using kriging
+#     surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
+# 
+#     # Set up MBO control with LCB and termination after 200 iterations
+#     ctrl = makeMBOControl()
+#     ctrl = setMBOControlTermination(ctrl, iters = 200)
+#     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritHodgesLehmann(0.7))
+# 
+#     # Run the optimization process
+#     result = mbo(instance, design = design, control = ctrl)
+#     run.time = result$final.opt.state$time.used
+#     best.y = result$y
+#     return(list(best.y, run.time))
+#   }
+# )
+# 
 
 
 
