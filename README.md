@@ -9,3 +9,6 @@ The test functions: 4 function classes: Ackley, Deflected Corrugated Srping, Ros
 
 Results:
 ![Result Image](https://raw.githubusercontent.com/DucAnhValentinoNguyen/dtMBO/main/results/BenchmarkTest.png)
+
+![alt text](https://github.com/DucAnhValentinoNguyen/dtMBO/blob/main/results/BenchmarkTest.png?raw=true)
+
