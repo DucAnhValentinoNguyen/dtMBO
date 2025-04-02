@@ -88,9 +88,9 @@ makeMBOInfillCritHodgesLehmann = function(hodges.factor = 0.5,
       
       # Compute the modified response
       if (control$minimize) {
-        res = p$response + (1 - hodges.factor) * cb.lambda * p$se
+        res = hodges.factor*p$response + (1 - hodges.factor) *(p$response + cb.lambda * p$se)
       } else {
-        res = -p$response + (1 - hodges.factor) * cb.lambda * p$se
+        res = - hodges.factor*p$response - (1 - hodges.factor) *(p$response - cb.lambda * p$se)
       }
       return(res)
     },
