@@ -6,24 +6,35 @@ library(tidyr)          # Load tidyr for data tidying
 library(dplyr)          # Load dplyr for data manipulation
 library(rgenoud)        # Load rgenoud for genetic optimisation
 
+# ---- Set global seed for reproducibility ----
+set.seed(1234)  # Critical for all stochastic steps
+
 # Function to perform model-based optimisation (MBO)
 mbo_optimisation <-
   function(job, data, instance, infill_crit, ...) {
-    set.seed(123)
+    set.seed(job$job.id)
     # Generate the initial design using Latin Hypercube Sampling (LHS)
-    design = generateDesign(5 * getNumberOfParameters(instance),
-                            getParamSet(instance),
-                            fun = lhs::maximinLHS)
+    design = generateDesign(
+      5 * getNumberOfParameters(instance),
+      getParamSet(instance),
+      fun = lhs::maximinLHS,
+    )
     
     # Define the surrogate model using Kriging with a Matern 3/2 covariance function
-    surrogate = makeLearner("regr.km", predict.type = "se", covtype = "matern3_2")
+    surrogate = makeLearner(
+      "regr.km",
+      predict.type = "se",
+      covtype = "matern3_2"
+    )
     
     # Create MBO control settings
     ctrl = makeMBOControl()
     ctrl = setMBOControlTermination(ctrl, iters = 100)  # Terminate after 100 iterations
     ctrl = setMBOControlInfill(ctrl, crit = infill_crit)  # Set the infill criterion
+    # Set a seed for the MBO optimization process (unique per job)
+    #ctrl = setMBOControlSeed(ctrl, seed = job$job.id)
     
-    # Run the MBO optimization process
+    # Run the MBO optimisation process
     result = mbo(instance, design = design, control = ctrl)
     run.time = result$final.opt.state$time.used  # Capture runtime
     best.y = result$y  # Capture the best function value found
@@ -33,10 +44,11 @@ mbo_optimisation <-
 
 # Create an experiment registry
 reg = makeExperimentRegistry(file.dir = NA,
-                             make.default = FALSE,
-                             seed = 1234)
+                             seed = 1234,
+                             # Seed for batchtools
+                             make.default = FALSE)
 
-# Add benchmark optimization problems to the registry
+# Add benchmark optimisation problems to the registry
 addProblem(name = "2DAckley",
            data = makeAckleyFunction(2),
            reg = reg)
@@ -145,11 +157,15 @@ res$result = NULL  # Remove unnecessary column
 # Create boxplot of best function values found by algorithms
 plot <- ggplot(res, aes(x = algorithm, y = best.y)) +
   geom_boxplot(aes(fill = algorithm)) +
-  facet_wrap( ~ problem, ncol = 2, scales = "free") +
+  facet_wrap(~ problem, ncol = 2, scales = "free") +
   labs(title = "Best objective value found by respective algorithms",
        x = "Algorithms",
        y = "Best y") + theme_bw()
-plot
+
+# Ensure the Plots directory exists
+if (!dir.exists("Plots")) {
+  dir.create("Plots")
+}
 
 ggsave(path = "Plots", filename = "BenchmarkOutcome.png")  # Save the plot
 
@@ -166,9 +182,12 @@ res <- res %>%
 # Compute average ranking per algorithm
 res_summary <- res %>%
   group_by(algorithm) %>%
-  summarise(avg_rank = mean(rank), avg_time = mean(running.time)) |> 
-  arrange(avg_rank, avg_time) 
+  summarise(avg_rank = mean(rank),
+            avg_time = mean(running.time)) |>
+  arrange(avg_rank, avg_time)
 
 # Display results
 avg_running_time |> arrange(avg_time) # Sort in ascending order
 res_summary
+plot
+res |> arrange(rank, running.time) |> print(n = 600) 
